@@ -113,7 +113,7 @@ The interactive web dashboard includes four functional modules:
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/memmedpoladli/car-body-type-classifier.git
+git clone https://github.com/mammadpoladli/car-body-type-classifier.git
 cd car-body-type-classifier
 ```
 
