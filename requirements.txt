@@ -1,0 +1,11 @@
+torch>=2.0.0
+torchvision>=0.15.0
+streamlit>=1.20.0
+scikit-learn
+matplotlib
+seaborn
+albumentations
+Pillow
+tqdm
+opencv-python-headless
+pandas

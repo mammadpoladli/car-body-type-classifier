@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Model weights (büyük dosya - ayrıca paylaş)
+*.pth
+
+# Dataset (büyük dosya - ayrıca paylaş)
+dataset_balanced_v6/
+
+# Gereksiz / geliştirme süreci dosyaları
+gereksiz/
+
+# Çıktı dosyaları
+/preds.txt
+
+# Zip / arşiv dosyaları
+*.zip
+
+# LaTeX
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+
+# Diğer
+*.txt~
+Yazlab*.pdf
+CarClassifier-edited.pdf
+230202013.pdf
+230202013_kod.txt
+testdata/
+

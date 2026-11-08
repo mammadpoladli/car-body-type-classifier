@@ -1,0 +1,120 @@
+!pip install torch torchvision albumentations opencv-python-headless Pillow numpy
+
+import os
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torchvision.models import efficientnet_b4, EfficientNet_B4_Weights
+from PIL import Image
+import numpy as np
+import albumentations as A
+from albumentations.pytorch import ToTensorV2
+
+CLASSES = [
+    'F1_ARACLARI', 'HATCHBACK', 'MICRO', 'PICK_UP',
+    'SEDAN', 'STATION_WAGON', 'SUV', 'VAN'
+]
+
+CLASS_NAME_TO_SCRIPT_ID = {
+    'SUV': 1,
+    'VAN': 2,
+    'STATION_WAGON': 3,
+    'MICRO': 4,
+    'F1_ARACLARI': 5,
+    'SEDAN': 6,
+    'HATCHBACK': 7,
+    'PICK_UP': 8
+}
+
+
+def get_model(num_classes=8):
+    weights = EfficientNet_B4_Weights.DEFAULT
+    model = efficientnet_b4(weights=weights)
+
+    in_features = model.classifier[1].in_features
+    model.classifier = nn.Sequential(
+        nn.Dropout(p=0.4, inplace=True),
+        nn.Linear(in_features, num_classes)
+    )
+    return model
+
+
+def Predict(file_path):
+    print(f"Test dizini okunuyor: {file_path}")
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Kullanılan cihaz: {device}")
+
+    model = get_model(num_classes=len(CLASSES))
+    model_path = "best_model_v6.pth"
+
+    if not os.path.exists(model_path):
+        print(f"HATA: '{model_path}' dosyası bulunamadı! Lütfen modeli Colab'a yükleyin.")
+        return
+
+    model.load_state_dict(torch.load(model_path, map_location=device))
+    model.to(device)
+    model.eval()
+
+    transform = A.Compose([
+        A.Resize(380, 380),
+        A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
+        ToTensorV2()
+    ])
+
+    results = []
+
+    if os.path.exists(file_path):
+        for class_folder in sorted(os.listdir(file_path)):
+            class_dir = os.path.join(file_path, class_folder)
+
+            if not os.path.isdir(class_dir):
+                continue
+
+            print(f"İşleniyor: {class_folder} klasörü...")
+
+            for fname in sorted(os.listdir(class_dir)):
+                if not fname.lower().endswith(('.png', '.jpg', '.jpeg', '.webp', '.bmp')):
+                    continue
+
+                img_path = os.path.join(class_dir, fname)
+
+                try:
+                    image = Image.open(img_path).convert("RGB")
+                    img_array = np.array(image)
+
+                    augmented = transform(image=img_array)
+                    tensor_img = augmented['image'].unsqueeze(0).to(device)
+
+                    with torch.no_grad():
+                        outputs = model(tensor_img)
+                        probabilities = F.softmax(outputs, dim=1)[0]
+                        max_idx = torch.argmax(probabilities).item()
+
+                        pred_class_name = CLASSES[max_idx]
+                        script_id = CLASS_NAME_TO_SCRIPT_ID[pred_class_name]
+
+                        results.append(f"{fname} | Pred: {script_id} ")
+
+                except Exception as e:
+                    print(f"Hata! Dosya okunamadı {fname}: {str(e)}")
+    else:
+        print(f"HATA: '{file_path}' dizini bulunamadı!")
+        return
+
+    output_filename = "/content/preds.txt"
+
+    if not os.path.exists("/content"):
+        output_filename = "preds.txt"
+
+    try:
+        with open(output_filename, "w", encoding="utf-8") as f:
+            for line in results:
+                f.write(line + "\n")
+
+        print(f"\nBaşarılı! Toplam {len(results)} tahmin '{output_filename}' dosyasına kaydedildi.")
+    except Exception as e:
+        print(f"HATA: Dosya kaydedilemedi: {str(e)}")
+
+
+Predict("/content/testdata")
