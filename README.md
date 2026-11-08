@@ -1,96 +1,96 @@
-# 🚗 Vehicle Body Type Classifier (Araç Gövde Tipi Sınıflandırma)
+# 🚗 Vehicle Body Type Classifier
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python)
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-ee4c2c?logo=pytorch)
 ![Streamlit](https://img.shields.io/badge/Streamlit-1.20%2B-ff4b4b?logo=streamlit)
 ![EfficientNet](https://img.shields.io/badge/Backbone-EfficientNet--B4-00A67E)
 ![Kaggle Dataset](https://img.shields.io/badge/Kaggle-Dataset-20BEFF?logo=kaggle)
-![License](https://img.shields.io/badge/License-MIT-green)
 
-Bu proje, derin öğrenme ve bilgisayarlı görü (computer vision) teknikleri kullanarak **8 farklı araç gövde tipini** yüksek doğrulukla tespit eden uçtan uca bir sınıflandırma sistemidir. Model, transfer learning ve ince ayar (fine-tuning) stratejileriyle eğitilmiş **EfficientNet-B4** mimarisine dayanmakta ve kullanıcı dostu bir **Streamlit** web arayüzü ile sunulmaktadır.
-
----
-
-## 🎯 Model Başarı Metrikleri
-
-Model, doğrulama veri seti üzerinde aşağıdaki başarı oranlarına ulaşmıştır:
-
-- **Macro F1-Score:** `%96.83`
-- **Genel Doğruluk (Accuracy):** `%96.70`
-- **Model Boyutu:** `~68 MB` (Hafif ve hızlı çıkarım)
-- **Ortalama Çıkarım Süresi (Inference Latency):** `~25-40 ms / görsel`
+An end-to-end deep learning and computer vision project designed to classify **8 different vehicle body types** with high precision. Built upon the **EfficientNet-B4** architecture using a two-phase transfer learning and fine-tuning strategy, the system provides an interactive web interface powered by **Streamlit** for real-time and batch image inference.
 
 ---
 
-## 🏷️ Sınıflandırma Kategorileri
+## 🎯 Model Performance
 
-Model aşağıdaki 8 araç sınıfını ayırt edebilmektedir:
+Evaluated on the balanced validation set, the model achieved the following benchmarks:
 
-| Script ID | Sınıf Adı | Açıklama |
+- **Macro F1-Score:** `96.83%`
+- **Overall Accuracy:** `96.70%`
+- **Model Checkpoint Size:** `~68 MB` (Compact and deployment-friendly)
+- **Average Inference Latency:** `~25–40 ms / image`
+
+---
+
+## 🏷️ Target Classes
+
+The classifier distinguishes between 8 vehicle categories:
+
+| Script ID | Class Name | Description |
 | :---: | :--- | :--- |
-| **1** | **SUV** | Spor amaçlı arazi/şehir aracı |
-| **2** | **VAN** | Kapalı kasa ticari / minibüs tipi araçlar |
-| **3** | **STATION WAGON** | Uzatılmış tavan çizgili binek araç |
-| **4** | **MICRO** | Smart vb. ultra kompakt mini şehir otomobilleri |
-| **5** | **F1 ARAÇLARI** | Açık tekerlekli yarış araçları (Formula / Open-Wheel) |
-| **6** | **SEDAN** | Standart 3 kutulu (motor-kabin-bagaj) binek araç |
-| **7** | **HATCHBACK** | Dik bagaj kapaklı kompakt binek araç |
-| **8** | **PICK UP** | Açık kasalı yük taşıma aracı |
+| **1** | **SUV** | Sport Utility Vehicle designed for passenger comfort and light off-road utility |
+| **2** | **VAN** | Passenger / cargo vans and multi-purpose utility vehicles |
+| **3** | **STATION WAGON** | Extended roofline estate / wagon cars with enlarged rear cargo area |
+| **4** | **MICRO** | Ultra-compact mini city cars (e.g., Smart Fortwo) |
+| **5** | **F1 VEHICLES** | Open-wheel single-seater race cars (Formula 1 / Open-Wheel) |
+| **6** | **SEDAN** | Standard 3-box passenger cars (separate engine, cabin, and trunk compartments) |
+| **7** | **HATCHBACK** | Compact passenger cars featuring a top-hinged full-width rear liftgate |
+| **8** | **PICK UP** | Light-duty commercial vehicles with an enclosed cab and an open cargo bed |
 
 ---
 
-## 📊 Veri Seti (Dataset)
+## 📊 Dataset
 
-Eğitim ve test aşamasında kullanılan dengelenmiş veri seti Kaggle üzerinde yayınlanmıştır:
+The balanced vehicle image dataset used for training and validation is hosted on Kaggle:
 
-🔗 **Kaggle Veri Seti:** [Vehicle Body Types Dataset](https://www.kaggle.com/datasets/mmmdpoladl/vehicle-body-types)
+🔗 **Kaggle Dataset:** [Vehicle Body Types Dataset](https://www.kaggle.com/datasets/mmmdpoladl/vehicle-body-types)
 
-> **Veri Seti Özellikleri:**
-> - 8 farklı sınıftan toplanmış, filtrelenmiş ve dengelenmiş araç görselleri.
-> - Aşırı öğrenmeyi (overfitting) engellemek amacıyla zengin veri artırma (data augmentation) teknikleri uygulanmıştır.
-> - Sınıflar arası örnek dengesizliğini çözmek için `WeightedRandomSampler` entegre edilmiştir.
+> **Key Highlights:**
+> - Curated, cleaned, and balanced image collection across 8 vehicle body categories.
+> - Advanced data augmentation pipelines applied to prevent overfitting and enhance generalization.
+> - `WeightedRandomSampler` incorporated during training to eliminate class imbalance bias.
 
 ---
 
-## 🧠 Model Mimarisi ve Eğitim Stratejisi
+## 🧠 Architecture & Training Methodology
 
-### 1. Mimari Detayları
-- **Omurga (Backbone):** ImageNet ön-eğitimli `EfficientNet-B4`
-- **Giriş Çözünürlüğü:** 380 × 380 piksel
-- **Sınıflandırıcı Kafa (Head):** `Dropout(p=0.4)` + `Linear(in_features, 8)`
+### 1. Backbone & Head
+- **Pretrained Backbone:** ImageNet-pretrained `EfficientNet-B4`
+- **Input Resolution:** `380 × 380` pixels
+- **Custom Classifier Head:** `Dropout(p=0.4)` followed by `Linear(in_features, 8)`
 
-### 2. İki Fazlı Eğitim (Two-Phase Transfer Learning)
-1. **Faz 1 (Feature Extraction):**
-   - EfficientNet omurga katmanları dondurulmuştur (`requires_grad=False`).
-   - Sadece son sınıflandırma katmanı eğitilmiştir.
-   - Optimizer: `Adam (lr=1e-3, weight_decay=1e-4)`
-2. **Faz 2 (Fine-Tuning):**
-   - Tüm model katmanlarının kilidi açılmıştır.
-   - Düşük öğrenme oranı ve öğrenme oranı planlayıcı (scheduler) ile ince ayar yapılmıştır.
-   - Optimizer: `AdamW (lr=1e-4)` + `CosineAnnealingWarmRestarts`
-   - Loss: `CrossEntropyLoss` (Etiket yumuşatma: `label_smoothing=0.1`, zor sınıflar için özel sınıf ağırlıkları: `HATCHBACK`, `SUV`, `STATION_WAGON`, `SEDAN` = 2.0)
+### 2. Two-Phase Training Strategy
+1. **Phase 1: Feature Extraction (Epochs 1–5)**
+   - EfficientNet feature extraction layers frozen (`requires_grad = False`).
+   - Only the custom classification head is trained.
+   - Optimizer: `Adam` (`lr = 1e-3`, `weight_decay = 1e-4`)
+2. **Phase 2: Full Fine-Tuning (Epochs 6–50)**
+   - All layers unfrozen for end-to-end representation adaptation.
+   - Optimizer: `AdamW` (`lr = 1e-4`, `weight_decay = 1e-4`)
+   - Learning Rate Scheduler: `CosineAnnealingWarmRestarts` (`T_0 = 10`, `eta_min = 1e-6`)
+   - Regularization: Early stopping with patience of 10 epochs.
+   - Loss Function: `CrossEntropyLoss` with Label Smoothing (`0.1`) and class weights for visually similar classes (`HATCHBACK`, `SUV`, `STATION_WAGON`, `SEDAN` weighted at `2.0`, others at `1.0`).
 
-### 3. Veri Artırma (Albumentations)
+### 3. Data Augmentation (Albumentations)
 - `Resize(400, 400)` & `RandomCrop(380, 380)`
 - `HorizontalFlip(p=0.5)`
 - `RandomBrightnessContrast(p=0.4)`
-- `ShiftScaleRotate(p=0.5)`
-- `CLAHE` (Histogram Eşitleme) & `GaussNoise`
-- `ColorJitter`, `MotionBlur`, `Perspective` ve `CoarseDropout`
+- `ShiftScaleRotate(shift=0.08, scale=0.15, rotate=15, p=0.5)`
+- `CLAHE` (Contrast Limited Adaptive Histogram Equalization) & `GaussNoise`
+- `ColorJitter`, `MotionBlur` / `GaussianBlur`, `Perspective`, and `CoarseDropout`
 
 ---
 
-## 📈 Performans Grafikleri ve Hata Matrisi
+## 📈 Performance Visualizations
 
-### 1. Eğitim ve Doğrulama Grafikleri
-Modelin eğitim ve doğrulama süreçlerindeki kayıp (loss) ve doğruluk (accuracy) eğrileri:
+### 1. Training & Validation Curves
+Loss and accuracy dynamics over training epochs:
 
-| Kayıp Grafiği (Loss) | Doğruluk Grafiği (Accuracy) |
+| Training & Validation Loss | Training & Validation Accuracy |
 | :---: | :---: |
 | ![Loss Plot](loss_plot.png) | ![Accuracy Plot](acc_plot.png) |
 
-### 2. Karmaşıklık Matrisi (Confusion Matrix)
-8 araç sınıfı arasındaki normalize edilmiş tahmin doğruluğu:
+### 2. Normalized Confusion Matrix
+8x8 Normalized Confusion Matrix demonstrating balanced inter-class classification:
 
 <p align="center">
   <img src="confusion_matrix.png" alt="Normalized Confusion Matrix" width="600"/>
@@ -98,79 +98,73 @@ Modelin eğitim ve doğrulama süreçlerindeki kayıp (loss) ve doğruluk (accur
 
 ---
 
-## 🖥️ Streamlit Web Uygulaması Özellikleri
+## 🖥️ Streamlit Web Application
 
-Uygulama 4 ana modülden oluşmaktadır:
+The interactive web dashboard includes four functional modules:
 
-1. **Canlı Tahmin:** Kullanıcı tekli veya çoklu araç görseli yükleyebilir; tespit edilen sınıf, güven skoru (confidence score), çıkarım süresi ve tüm sınıfların olasılık dağılım grafiği anlık gösterilir.
-2. **Model Özellikleri:** Model mimarisi, parametre sayıları ve kaydedilen performans grafikleri incelenebilir.
-3. **Toplu Test (Batch Inference):** Bir klasördeki yüzlerce görseli otomatik olarak tarar, her birini modelden geçirir ve proje isterlerine uygun formatta `preds.txt` çıktı dosyası üretir.
-4. **Performans Analizi (Test.txt Entegrasyonu):** Üretilen `preds.txt` ile cevap anahtarı niteliğindeki `True.txt` dosyasını karşılaştırarak dinamik Confusion Matrix ve Classification Report görselleştirmesi yapar.
+1. **Live Prediction:** Upload single or multiple vehicle images to instantly inspect predicted class, confidence score, inference latency (ms), and a full-class probability distribution bar chart.
+2. **Model Specs:** Comprehensive overview of model architecture, trainable parameters, and training metrics.
+3. **Batch Inference:** Recursively scans an input folder with arbitrary nested directories, classifies all discovered images, displays paginated visual previews, and exports results to `preds.txt`.
+4. **Performance Analysis (Ground Truth Verification):** Uploads prediction files (`preds.txt`) alongside ground truth files (`True.txt`) to dynamically compute overall accuracy, Macro F1-Score, an interactive Confusion Matrix heatmap, and a detailed Classification Report table.
 
 ---
 
-## 🚀 Kurulum ve Çalıştırma
+## 🚀 Getting Started
 
-### 1. Depoyu Klonlayın
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/memmedpoladli/car-body-type-classifier.git
 cd car-body-type-classifier
 ```
 
-### 2. Sanal Ortam Oluşturun ve Bağımlılıkları Yükleyin
+### 2. Create Virtual Environment & Install Dependencies
 ```bash
 python3 -m venv venv
-source venv/bin/activate  # Windows için: venv\Scripts\activate
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 3. Modeli İndirin
-Eğitilmiş model dosyasını (`best_model_v6.pth`) proje ana dizinine yerleştirin.
+### 3. Download Model Weights
+Place the trained checkpoint (`best_model_v6.pth`) into the project root directory.
 
-### 4. Web Arayüzünü Başlatın
+### 4. Launch the Web Application
 ```bash
 streamlit run app.py
 ```
-Tarayıcınızda otomatik olarak `http://localhost:8501` adresi açılacaktır.
+The interface will automatically open in your default browser at `http://localhost:8501`.
 
 ---
 
-## ☁️ Google Colab ile Test Çalıştırma
+## ☁️ Google Colab Batch Inference
 
-Modeli Colab ortamında hızlıca toplu test etmek için:
-1. `PredictionScript.txt` içeriğini Colab hücresine yapıştırın.
-2. `best_model_v6.pth` dosyasını çalışma dizinine yükleyin.
-3. Şu fonksiyonu çağırın:
+To run batch predictions in a Google Colab notebook:
+1. Copy the contents of `PredictionScript.txt` into a notebook cell.
+2. Upload `best_model_v6.pth` to the Colab environment.
+3. Execute the function:
    ```python
    Predict("/content/testdata")
    ```
-4. Tahminler `/content/preds.txt` dosyasına standart formatta (`<dosya_adı> | Pred: <ID>`) yazılacaktır.
+4. Predictions will be generated and saved to `/content/preds.txt` in the standard format (`<filename> | Pred: <ID>`).
 
 ---
 
-## 📁 Proje Dizin Yapısı
+## 📁 Repository Structure
 
 ```
 car-body-type-classifier/
-├── app.py                     # Streamlit interaktif web uygulaması
-├── model.py                   # EfficientNet-B4 model mimarisi
-├── dataset.py                 # PyTorch Dataset, Albumentations & Sampler
-├── train.py                   # 2-Fazlı model eğitim scripti
-├── classes.json               # Sınıf isim listesi
-├── requirements.txt           # Python kütüphane bağımlılıkları
-├── PredictionScript.txt       # Google Colab uyumlu tahmin scripti
-├── README.md                  # Proje dokümantasyonu
-├── .gitignore                 # Git hariç tutma kuralları
-├── acc_plot.png               # Doğruluk (Accuracy) grafiği
-├── loss_plot.png              # Kayıp (Loss) grafiği
-├── confusion_matrix.png       # 8x8 Normalize Karmaşıklık Matrisi
-└── test_icin_ornek_dosyalar/  # Örnek doğrulama dosyaları
+├── app.py                     # Streamlit interactive web application
+├── model.py                   # EfficientNet-B4 model definition
+├── dataset.py                 # PyTorch Dataset, Albumentations pipeline & Sampler
+├── train.py                   # Two-phase training and validation script
+├── classes.json               # 8 vehicle class labels
+├── requirements.txt           # Python dependencies
+├── PredictionScript.txt       # Google Colab batch inference script
+├── README.md                  # Project documentation
+├── .gitignore                 # Git ignore rules
+├── acc_plot.png               # Training & validation accuracy plot
+├── loss_plot.png              # Training & validation loss plot
+├── confusion_matrix.png       # 8x8 Normalized Confusion Matrix
+└── test_icin_ornek_dosyalar/  # Sample test files
     ├── True.txt
     └── Preds.txt
 ```
-
----
-
-## 📄 Lisans
-
-Bu proje [MIT Lisansı](LICENSE) kapsamında açık kaynak olarak paylaşılmıştır.
